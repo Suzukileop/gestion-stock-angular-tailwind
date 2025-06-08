@@ -1,0 +1,39 @@
+<div class="max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 mt-8">
+  <h2 class="text-xl font-bold text-violet-700 dark:text-violet-300 mb-6">Nouvelle entrée en stock</h2>
+  <form (ngSubmit)="save()" autocomplete="off">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Numéro de pièce</label>
+        <input type="text" class="w-full rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white focus:ring-violet-500 focus:border-violet-500" [(ngModel)]="entree.numero_piece" name="numero_piece" required />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Date d'entrée</label>
+        <input type="date" class="w-full rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white focus:ring-violet-500 focus:border-violet-500" [(ngModel)]="entree.date_entree" name="date_entree" />
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium mb-1">Marchandise</label>
+        <input type="text" class="w-full rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white focus:ring-violet-500 focus:border-violet-500" [(ngModel)]="entree.marchandise" name="marchandise" required />
+      </div>
+    </div>
+    <div class="mt-6 mb-2">
+      <h3 class="font-semibold text-violet-700 dark:text-violet-300 mb-2">Articles de l'entrée</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+        <input type="text" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" placeholder="Désignation" [(ngModel)]="ligne.designation" name="designation" />
+        <input type="number" min="1" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" placeholder="Quantité" [(ngModel)]="ligne.quantite" name="quantite" />
+        <input type="number" min="0" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" placeholder="Prix unitaire" [(ngModel)]="ligne.prix_unitaire" name="prix_unitaire" />
+        <input type="text" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" placeholder="Magasin" [(ngModel)]="ligne.magasin" name="magasin" />
+        <input type="text" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" placeholder="Étagère" [(ngModel)]="ligne.etagere" name="etagere" />
+      </div>
+      <button type="button" (click)="addLigne()" class="mt-2 px-4 py-2 bg-violet-600 text-white rounded-lg shadow hover:bg-violet-700 transition">+ Ajouter l'article</button>
+    </div>
+    <div *ngIf="lignes.length > 0" class="mb-4">
+      <div *ngFor="let l of lignes; let i = index" class="flex items-center gap-2 bg-violet-50 dark:bg-violet-900/30 rounded-lg px-3 py-2 mb-2">
+        <span class="flex-1">{{ l.designation }} ({{ l.quantite }}) - {{ l.prix_unitaire | number }} Ar, {{ l.magasin }}, {{ l.etagere }}</span>
+        <button type="button" (click)="removeLigne(i)" class="text-red-500 hover:underline text-xs">Supprimer</button>
+      </div>
+    </div>
+    <div class="flex justify-end mt-6">
+      <button type="submit" class="px-6 py-2 bg-violet-600 text-white rounded-xl shadow hover:bg-violet-700 transition font-semibold">Enregistrer</button>
+    </div>
+  </form>
+</div>

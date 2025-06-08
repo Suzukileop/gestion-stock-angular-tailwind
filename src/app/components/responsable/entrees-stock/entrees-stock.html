@@ -1,0 +1,42 @@
+<app-header></app-header>
+<div class="flex gap-6 pt-24 px-2 min-h-screen mx-auto" style="max-width: 100rem;">
+  <!-- Sidebar sticky, pleine hauteur -->
+  <aside class="h-[calc(100vh-6rem)] sticky top-24 w-72">
+    <sidebar-responsable></sidebar-responsable>
+  </aside>
+  <!-- Main content (scrollable) -->
+  <main class="flex-1 h-[calc(100vh-6rem)] overflow-y-auto bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl shadow-xl p-8">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-violet-700 dark:text-violet-300">Entrées en stock</h1>
+        <a routerLink="nouvelle" class="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-xl shadow hover:bg-violet-700 transition font-semibold">
+          <span>+ Nouvelle entrée</span>
+        </a>
+      </div>
+      <div *ngIf="entrees.length === 0" class="text-center text-gray-400 dark:text-gray-500 py-12">
+        Aucune entrée en stock pour le moment.
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let entree of entrees" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col gap-2 hover:scale-[1.02] transition">
+          <div class="flex items-center justify-between">
+            <div class="font-bold text-lg text-violet-700 dark:text-violet-300">{{ entree.numero_piece }}</div>
+            <span class="px-3 py-1 rounded-full text-xs font-semibold"
+              [ngClass]="{
+                'bg-yellow-100 text-yellow-700': entree.statut === 'BROUILLON',
+                'bg-green-100 text-green-700': entree.statut === 'VALIDEE',
+                'bg-red-100 text-red-700': entree.statut === 'REJETEE'
+              }">
+              {{ entree.statut }}
+            </span>
+          </div>
+          <div class="text-sm text-gray-500 dark:text-gray-400">Date : {{ entree.date_entree | date:'shortDate' }}</div>
+          <div class="text-sm text-gray-700 dark:text-gray-200">Marchandise : {{ entree.marchandise }}</div>
+          <div class="flex gap-2 mt-2">
+            <a [routerLink]="['/responsable/entrees-stock', entree.id]" class="text-violet-600 hover:underline text-sm">Détail</a>
+            <button class="text-red-500 hover:underline text-sm" (click)="deleteEntree(entree.id)">Supprimer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

@@ -11,6 +11,7 @@ export const routes: Routes = [
   { path: 'responsable/dashboard', loadComponent: () => import('./components/responsable/dashboard-responsable.component').then(m => m.DashboardResponsableComponent) },
   { path: 'responsable/entrees-stock', loadComponent: () => import('./components/responsable/entrees-stock/entrees-stock').then(m => m.EntreesStockComponent) },
   { path: 'responsable/entrees-stock/nouvelle', loadComponent: () => import('./components/responsable/entrees-stock/entree-stock-form').then(m => m.EntreeStockFormComponent) },
+  { path: 'responsable/entrees-stock/:id', loadComponent: () => import('./components/responsable/entrees-stock/entree-stock-detail').then(m => m.EntreeStockDetailComponent) },
   // Ajoutez ici d'autres routes pour votre application (tableau de bord, etc.)
   { path: '**', redirectTo: '/login' } // Rediriger les routes inconnues vers la page de connexion
 ];

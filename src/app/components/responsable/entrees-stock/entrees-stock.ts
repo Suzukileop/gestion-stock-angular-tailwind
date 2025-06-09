@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { SidebarResponsableComponent } from '../sidebar-responsable.component';
 import { EntreeStockService } from '../../../services/entree-stock.service';
@@ -9,15 +8,15 @@ import { EntreeStockService } from '../../../services/entree-stock.service';
 @Component({
   selector: 'entrees-stock',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, HeaderComponent, SidebarResponsableComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, SidebarResponsableComponent],
   templateUrl: './entrees-stock.html',
   styleUrls: ['./entrees-stock.css']
 })
 export class EntreesStockComponent implements OnInit {
-  entrees: any[] = [];
-  selectedEntree: any | null = null;
+  pieces: any[] = [];
+  selectedPiece: any | null = null;
   showCreateModal: boolean = false;
-  newEntree: any = this.getEmptyEntree();
+  newPiece: any = this.getEmptyPiece();
   newLigne: any = this.getEmptyLigne();
 
   searchTerm: string = '';
@@ -32,20 +31,20 @@ export class EntreesStockComponent implements OnInit {
   constructor(private entreeStockService: EntreeStockService) {}
 
   ngOnInit() {
-    this.entrees = this.entreeStockService.getAll();
+    this.pieces = this.entreeStockService.getAll();
   }
 
-  deleteEntree(id: string) {
+  deletePiece(id: string) {
     this.entreeStockService.delete(id);
-    this.entrees = this.entreeStockService.getAll();
+    this.pieces = this.entreeStockService.getAll();
   }
 
-  openDetail(entree: any) {
-    this.selectedEntree = entree;
+  openDetail(piece: any) {
+    this.selectedPiece = piece;
   }
 
   closeDetail() {
-    this.selectedEntree = null;
+    this.selectedPiece = null;
   }
 
   openCreateModal() {
@@ -58,13 +57,19 @@ export class EntreesStockComponent implements OnInit {
     this.resetCreateForm();
   }
 
-  getEmptyEntree() {
+  getEmptyPiece() {
     return {
       numero_piece: '',
-      date_entree: '',
-      marchandise: '',
+      date_piece: '',
+      marche: '',
+      categorie_article: '',
+      compte: '',
+      contact: '',
+      tous_livres: '',
+      commentaire: '',
+      piece_justificative: null,
       statut: 'BROUILLON',
-      lignes: []
+      articles: []
     };
   }
 
@@ -73,36 +78,36 @@ export class EntreesStockComponent implements OnInit {
   }
 
   resetCreateForm() {
-    this.newEntree = this.getEmptyEntree();
+    this.newPiece = this.getEmptyPiece();
     this.newLigne = this.getEmptyLigne();
   }
 
-  addLigneToNewEntree() {
-    if (!this.newEntree.lignes) this.newEntree.lignes = [];
-    this.newEntree.lignes.push({ ...this.newLigne });
+  addLigneToNewPiece() {
+    if (!this.newPiece.articles) this.newPiece.articles = [];
+    this.newPiece.articles.push({ ...this.newLigne });
     this.newLigne = this.getEmptyLigne();
   }
 
-  removeLigneFromNewEntree(i: number) {
-    this.newEntree.lignes.splice(i, 1);
+  removeLigneFromNewPiece(i: number) {
+    this.newPiece.articles.splice(i, 1);
   }
 
-  createEntree(entree: any) {
-    entree.id = crypto.randomUUID();
-    entree.date_entree = entree.date_entree || new Date().toISOString();
-    this.entreeStockService.add(entree);
-    this.entrees = this.entreeStockService.getAll();
+  createPiece(piece: any) {
+    piece.id = crypto.randomUUID();
+    piece.date_piece = piece.date_piece || new Date().toISOString();
+    this.entreeStockService.add(piece);
+    this.pieces = this.entreeStockService.getAll();
     this.closeCreateModal();
   }
 
-  get filteredEntrees(): any[] {
-    let result = this.entrees;
+  get filteredPieces(): any[] {
+    let result = this.pieces;
     // Recherche
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       result = result.filter(e =>
         (e.numero_piece && e.numero_piece.toLowerCase().includes(term)) ||
-        (e.marchandise && e.marchandise.toLowerCase().includes(term))
+        (e.marche && e.marche.toLowerCase().includes(term))
       );
     }
     // Filtre statut
@@ -112,26 +117,26 @@ export class EntreesStockComponent implements OnInit {
     // Filtre marchandise
     if (this.filterMarchandise) {
       const march = this.filterMarchandise.toLowerCase();
-      result = result.filter(e => e.marchandise && e.marchandise.toLowerCase().includes(march));
+      result = result.filter(e => e.marche && e.marche.toLowerCase().includes(march));
     }
     // Filtre date exacte
     if (this.filterDate) {
-      result = result.filter(e => e.date_entree && e.date_entree.startsWith(this.filterDate));
+      result = result.filter(e => e.date_piece && e.date_piece.startsWith(this.filterDate));
     }
     // Tri par date (plus récent d'abord)
-    result = result.slice().sort((a, b) => new Date(b.date_entree).getTime() - new Date(a.date_entree).getTime());
+    result = result.slice().sort((a, b) => new Date(b.date_piece).getTime() - new Date(a.date_piece).getTime());
     // Pagination
     const start = (this.currentPage - 1) * this.pageSize;
     return result.slice(start, start + this.pageSize);
   }
 
   get totalPages(): number {
-    let result = this.entrees;
+    let result = this.pieces;
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       result = result.filter(e =>
         (e.numero_piece && e.numero_piece.toLowerCase().includes(term)) ||
-        (e.marchandise && e.marchandise.toLowerCase().includes(term))
+        (e.marche && e.marche.toLowerCase().includes(term))
       );
     }
     if (this.filterStatut) {
@@ -139,10 +144,10 @@ export class EntreesStockComponent implements OnInit {
     }
     if (this.filterMarchandise) {
       const march = this.filterMarchandise.toLowerCase();
-      result = result.filter(e => e.marchandise && e.marchandise.toLowerCase().includes(march));
+      result = result.filter(e => e.marche && e.marche.toLowerCase().includes(march));
     }
     if (this.filterDate) {
-      result = result.filter(e => e.date_entree && e.date_entree.startsWith(this.filterDate));
+      result = result.filter(e => e.date_piece && e.date_piece.startsWith(this.filterDate));
     }
     return Math.ceil(result.length / this.pageSize) || 1;
   }
@@ -157,5 +162,12 @@ export class EntreesStockComponent implements OnInit {
 
   toggleViewMode() {
     this.viewMode = this.viewMode === 'cards' ? 'table' : 'cards';
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input && input.files && input.files.length > 0) {
+      this.newPiece.piece_justificative = input.files[0];
+    }
   }
 }

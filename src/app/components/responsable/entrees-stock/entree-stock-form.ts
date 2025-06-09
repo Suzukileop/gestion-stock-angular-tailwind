@@ -8,7 +8,6 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './entree-stock-form.html',
-  styleUrls: ['./entree-stock-form.css']
 })
 export class EntreeStockFormComponent {
   entree: any = {

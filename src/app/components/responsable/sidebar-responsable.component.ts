@@ -18,7 +18,6 @@ export class SidebarResponsableComponent implements OnInit {
     { label: 'Expression de besoins', icon: 'document-text', route: '/responsable/besoins' },
     { label: 'Affectations', icon: 'user-check', route: '/responsable/affectations' },
     { label: 'Rapports & Statistiques', icon: 'chart-bar', route: '/responsable/rapports' },
-    { label: 'Déconnexion', icon: 'logout', route: '/login', action: 'logout' },
   ];
 
   ngOnInit() {

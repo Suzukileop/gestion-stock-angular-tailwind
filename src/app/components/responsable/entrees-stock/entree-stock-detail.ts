@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EntreeStockService } from '../../../services/entree-stock.service';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { SidebarResponsableComponent } from '../sidebar-responsable.component';
@@ -8,7 +8,7 @@ import { SidebarResponsableComponent } from '../sidebar-responsable.component';
 @Component({
   selector: 'entree-stock-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, HeaderComponent, SidebarResponsableComponent],
+  imports: [CommonModule, HeaderComponent, SidebarResponsableComponent],
   templateUrl: './entree-stock-detail.html',
   styleUrls: ['./entree-stock-detail.css']
 })

@@ -170,4 +170,18 @@ export class EntreesStockComponent implements OnInit {
       this.newPiece.piece_justificative = input.files[0];
     }
   }
+
+  openUpdate(piece: any) {
+    // À remplacer par l'ouverture d'un vrai formulaire de mise à jour
+    alert('Mise à jour de la pièce : ' + piece.numero_piece);
+  }
+
+  visualiserPieceJustificative(piece: any) {
+    if (piece.piece_justificative) {
+      const file = piece.piece_justificative;
+      const url = URL.createObjectURL(file);
+      window.open(url, '_blank');
+      setTimeout(() => URL.revokeObjectURL(url), 1000 * 60);
+    }
+  }
 }

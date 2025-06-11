@@ -144,24 +144,39 @@
                           <table class="min-w-full text-xs border rounded-lg">
                             <thead class="bg-violet-50 dark:bg-violet-900/30">
                               <tr>
-                                <th class="px-3 py-2 text-left font-bold">Désignation</th>
-                                <th class="px-3 py-2 text-left font-bold">Quantité</th>
-                                <th class="px-3 py-2 text-left font-bold">Prix unitaire</th>
-                                <th class="px-3 py-2 text-left font-bold">Magasin</th>
-                                <th class="px-3 py-2 text-left font-bold">Étagère</th>
+                                <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Désignation</th>
+                                <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Unité</th>
+                                <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Prix unitaire</th>
+                                <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Quantité</th>
+                                <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Date de péremption</th>
+                                <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Actions</th>
                               </tr>
                             </thead>
                             <tbody>
-                              <tr *ngFor="let art of piece.articles">
+                              <tr *ngFor="let art of piece.articles; let i = index">
                                 <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.designation }}</td>
+                                <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.unite }}</td>
+                                <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.prix_unitaire }}</td>
                                 <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.quantite }}</td>
-                                <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.prix_unitaire | number }}</td>
-                                <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.magasin }}</td>
-                                <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.etagere }}</td>
+                                <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.date_peremption | date:'shortDate' }}</td>
+                                <td class="px-3 py-2 flex gap-2">
+                                  <button (click)="editArticle(piece, i)" class="p-1 rounded hover:bg-violet-100 dark:hover:bg-violet-800" title="Modifier">
+                                    <svg class="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 21h6v-6H3v6z"/></svg>
+                                  </button>
+                                  <button (click)="deleteArticle(piece, i)" class="p-1 rounded hover:bg-red-100 dark:hover:bg-red-800" title="Supprimer">
+                                    <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                  </button>
+                                </td>
                               </tr>
                             </tbody>
                           </table>
                         </div>
+                      </div>
+                      <!-- Bouton pour ouvrir la modale d'ajout d'article dans le détail -->
+                      <div *ngIf="piece.showDetail" class="flex justify-end mb-2">
+                        <button (click)="openArticleModal(piece)" class="px-4 py-2 bg-violet-600 text-white rounded-lg shadow hover:bg-violet-700 transition font-semibold flex items-center gap-2">
+                          <span>+ Ajouter un article</span>
+                        </button>
                       </div>
                     </div>
                 </td>
@@ -319,5 +334,85 @@
         <button type="submit" class="px-6 py-2 bg-violet-600 text-white rounded-xl shadow hover:bg-violet-700 transition font-semibold">Créer</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Modal CRUD Article (design avancé violet-bleu-rose) -->
+<div *ngIf="showArticleModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white/80 dark:bg-gray-900/80 rounded-3xl shadow-2xl shadow-blue-200/40 p-0 max-w-lg w-full relative animate-fade-in backdrop-blur-xl">
+    <div class="rounded-t-3xl px-8 py-5 bg-gradient-to-r from-violet-600 to-blue-400 flex items-center justify-between shadow-lg">
+      <h2 class="text-lg font-extrabold text-white tracking-wide">Saisie article: <span class="font-mono">{{ currentPiece?.categorie_article ? currentPiece.categorie_article : '' }}</span></h2>
+      <button (click)="closeArticleModal()" class="text-white hover:text-pink-200 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form #articleForm="ngForm" (ngSubmit)="addArticleToLocalList()" autocomplete="off" class="px-8 py-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-violet-700 dark:text-blue-300">Article</label>
+          <input type="text" class="w-full rounded-xl border border-blue-200 dark:border-blue-400 bg-white/80 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-blue-400 transition px-3 py-2" [(ngModel)]="articleFormData.designation" name="designation" required />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-violet-700 dark:text-blue-300">Unité</label>
+          <select class="w-full rounded-xl border border-blue-200 dark:border-blue-400 bg-white/80 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-blue-400 transition px-3 py-2" [(ngModel)]="articleFormData.unite" name="unite" required>
+            <option value="">Sélectionner</option>
+            <option value="pièce">pièce</option>
+            <option value="mètre">mètre</option>
+            <option value="litre">litre</option>
+            <option value="kg">kg</option>
+            <option value="paquet">paquet</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-violet-700 dark:text-blue-300">Prix unitaire</label>
+          <input type="number" min="0" class="w-full rounded-xl border border-blue-200 dark:border-blue-400 bg-white/80 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-blue-400 transition px-3 py-2" [(ngModel)]="articleFormData.prix_unitaire" name="prix_unitaire" required placeholder="Saisir prix unitaire" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-violet-700 dark:text-blue-300">Quantité</label>
+          <input type="number" min="1" class="w-full rounded-xl border border-blue-200 dark:border-blue-400 bg-white/80 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-blue-400 transition px-3 py-2" [(ngModel)]="articleFormData.quantite" name="quantite" required placeholder="Saisir quantité" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-semibold mb-1 text-violet-700 dark:text-blue-300">Date de péremption</label>
+          <input type="date" class="w-full rounded-xl border border-blue-200 dark:border-blue-400 bg-white/80 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-blue-400 transition px-3 py-2" [(ngModel)]="articleFormData.date_peremption" name="date_peremption" />
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-2">
+        <button type="submit" class="px-6 py-2 bg-gradient-to-r from-violet-600 to-blue-400 text-white rounded-xl shadow hover:from-pink-500 hover:to-violet-600 transition font-bold">{{ editArticleIndex === null ? 'Ajouter à la liste' : 'Mettre à jour' }}</button>
+      </div>
+    </form>
+    <div class="px-8 pb-6">
+      <table *ngIf="localArticleList.length > 0" class="min-w-full text-xs border border-blue-200 dark:border-blue-400 rounded-2xl shadow even:bg-blue-50/30 dark:even:bg-blue-900/20 mb-4 overflow-hidden">
+        <thead class="bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-900 dark:to-blue-900">
+          <tr>
+            <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-blue-200">Désignation</th>
+            <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-blue-200">Unité</th>
+            <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-blue-200">Prix unitaire</th>
+            <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-blue-200">Quantité</th>
+            <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-blue-200">Date de péremption</th>
+            <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-blue-200">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let art of localArticleList; let i = index" class="even:bg-blue-50/30 dark:even:bg-blue-900/20">
+            <td class="px-3 py-2 text-gray-700 dark:text-blue-100">{{ art.designation }}</td>
+            <td class="px-3 py-2 text-gray-700 dark:text-blue-100">{{ art.unite }}</td>
+            <td class="px-3 py-2 text-gray-700 dark:text-blue-100">{{ art.prix_unitaire }}</td>
+            <td class="px-3 py-2 text-gray-700 dark:text-blue-100">{{ art.quantite }}</td>
+            <td class="px-3 py-2 text-gray-700 dark:text-blue-100">{{ art.date_peremption | date:'shortDate' }}</td>
+            <td class="px-3 py-2 flex gap-2">
+              <button (click)="editLocalArticle(i)" class="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-800" title="Modifier">
+                <svg class="w-4 h-4 text-blue-500 dark:text-blue-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 21h6v-6H3v6z"/></svg>
+              </button>
+              <button (click)="deleteLocalArticle(i)" class="p-1 rounded hover:bg-pink-100 dark:hover:bg-pink-800" title="Supprimer">
+                <svg class="w-4 h-4 text-pink-500 dark:text-pink-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="flex justify-end">
+        <button *ngIf="localArticleList.length > 0" (click)="validateAllArticles()" class="px-6 py-2 bg-gradient-to-r from-violet-600 to-blue-400 text-white rounded-xl shadow hover:from-pink-500 hover:to-violet-600 transition font-bold">Valider tous les articles</button>
+      </div>
+    </div>
   </div>
 </div>

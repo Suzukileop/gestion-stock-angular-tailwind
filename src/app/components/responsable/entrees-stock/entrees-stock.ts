@@ -28,6 +28,13 @@ export class EntreesStockComponent implements OnInit {
 
   viewMode: 'cards' | 'table' = 'cards';
 
+  showArticleModal: boolean = false;
+  currentPiece: any = null;
+  articleFormData: any = { designation: '', unite: '', prix_unitaire: '', quantite: '', date_peremption: '' };
+  editArticleIndex: number | null = null;
+
+  localArticleList: any[] = [];
+
   constructor(private entreeStockService: EntreeStockService) {}
 
   ngOnInit() {
@@ -183,5 +190,65 @@ export class EntreesStockComponent implements OnInit {
       window.open(url, '_blank');
       setTimeout(() => URL.revokeObjectURL(url), 1000 * 60);
     }
+  }
+
+  openArticleModal(piece: any, index: number | null = null) {
+    this.showArticleModal = true;
+    this.currentPiece = piece;
+    this.editArticleIndex = null;
+    this.articleFormData = { designation: '', unite: '', prix_unitaire: '', quantite: '', date_peremption: '' };
+    // On part d'une liste vide, ou on clone les articles existants si besoin (optionnel)
+    this.localArticleList = [];
+  }
+
+  closeArticleModal() {
+    this.showArticleModal = false;
+    this.currentPiece = null;
+    this.editArticleIndex = null;
+    this.articleFormData = { designation: '', unite: '', prix_unitaire: '', quantite: '', date_peremption: '' };
+    this.localArticleList = [];
+  }
+
+  addArticleToLocalList() {
+    if (this.editArticleIndex === null) {
+      this.localArticleList.push({ ...this.articleFormData });
+    } else {
+      this.localArticleList[this.editArticleIndex] = { ...this.articleFormData };
+    }
+    this.articleFormData = { designation: '', unite: '', prix_unitaire: '', quantite: '', date_peremption: '' };
+    this.editArticleIndex = null;
+  }
+
+  editLocalArticle(index: number) {
+    this.editArticleIndex = index;
+    this.articleFormData = { ...this.localArticleList[index] };
+  }
+
+  deleteLocalArticle(index: number) {
+    this.localArticleList.splice(index, 1);
+    if (this.editArticleIndex === index) {
+      this.articleFormData = { designation: '', unite: '', prix_unitaire: '', quantite: '', date_peremption: '' };
+      this.editArticleIndex = null;
+    }
+  }
+
+  validateAllArticles() {
+    if (!this.currentPiece) return;
+    if (!this.currentPiece.articles) this.currentPiece.articles = [];
+    this.currentPiece.articles.push(...this.localArticleList);
+    this.entreeStockService.update(this.currentPiece);
+    this.pieces = this.entreeStockService.getAll();
+    this.closeArticleModal();
+  }
+
+  editArticle(piece: any, index: number) {
+    this.openArticleModal(piece, index);
+  }
+
+  deleteArticle(piece: any, index: number) {
+    if (!piece.articles) return;
+    piece.articles.splice(index, 1);
+    this.entreeStockService.update(piece);
+    this.pieces = this.entreeStockService.getAll();
   }
 }

@@ -78,6 +78,20 @@ export class RegisterComponent implements OnInit {
         statut: 'ACTIVE'
       });
     }
+    // Créer un client de test par défaut si aucun n'existe
+    if (!users.some((u: any) => u.role === 'CLIENT')) {
+      users.push({
+        matricule: 'client01',
+        nom: 'Rasoa',
+        prenom: 'Client',
+        email: 'client@minef.com',
+        telephone: '+261340000002',
+        password: 'Client@1234',
+        unite_administrative: 'SERVICE DU PERSONNEL',
+        role: 'CLIENT',
+        statut: 'ACTIVE'
+      });
+    }
     localStorage.setItem('users', JSON.stringify(users));
   }
 

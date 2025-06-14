@@ -56,8 +56,10 @@ export class LoginComponent {
       window.location.href = '/admin/users';
     } else if (user.role === 'RESPONSABLE') {
       window.location.href = '/responsable/dashboard';
+    } else if (user.role === 'CLIENT') {
+      window.location.href = '/client/dashboard';
     } else {
-      window.location.href = '/'; // À remplacer par le dashboard utilisateur plus tard
+      window.location.href = '/login';
     }
   }
 

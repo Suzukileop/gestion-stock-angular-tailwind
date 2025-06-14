@@ -149,4 +149,93 @@
       </div>
     </div>
   </main>
+</div>
+
+<!-- Modal Nouvelle Commande -->
+<div *ngIf="showCommandeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-2xl max-w-2xl w-full relative animate-fade-in backdrop-blur-md border border-violet-200 dark:border-violet-800">
+    <!-- Header amélioré -->
+    <div class="rounded-t-2xl px-8 py-4 bg-gradient-to-r from-violet-700 via-blue-500 to-pink-400 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
+        <h2 class="text-lg font-bold text-white">Nouvelle Commande</h2>
+      </div>
+      <button (click)="closeCommandeModal()" class="text-white hover:text-pink-200 transition text-2xl font-bold"><span aria-label="Fermer">&times;</span></button>
+    </div>
+    <form class="px-8 py-6 space-y-4" autocomplete="off" (ngSubmit)="$event.preventDefault()">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Champs existants -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Compte <span class="text-red-500">*</span></label>
+          <select [(ngModel)]="commandeForm.compte" name="compte" class="w-full rounded-lg border border-gray-300 focus:ring-violet-500 focus:border-violet-500" required>
+            <option value="">Choisir compte...</option>
+            <option *ngFor="let c of comptes" [value]="c">{{ c }}</option>
+          </select>
+          <div *ngIf="commandeErrors.compte" class="text-xs text-red-500 mt-1">Compte requis.</div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Catégorie d'Article <span class="text-red-500">*</span></label>
+          <select [(ngModel)]="commandeForm.categorie" name="categorie" class="w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" required>
+            <option value="">Choisir catégorie...</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+          <div *ngIf="commandeErrors.categorie" class="text-xs text-red-500 mt-1">Catégorie d'article requise.</div>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Article <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="commandeForm.article" name="article" class="w-full rounded-lg border border-gray-300 focus:ring-pink-500 focus:border-pink-500" placeholder="Saisir article" required />
+          <div *ngIf="commandeErrors.article" class="text-xs text-red-500 mt-1">Article requis.</div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Unité <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="commandeForm.unite" name="unite" class="w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" required />
+          <div *ngIf="commandeErrors.unite" class="text-xs text-red-500 mt-1">Unité requise.</div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Quantité <span class="text-red-500">*</span></label>
+          <input type="number" min="1" [(ngModel)]="commandeForm.quantite" name="quantite" class="w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Saisir quantité" required />
+          <div *ngIf="commandeErrors.quantite" class="text-xs text-red-500 mt-1">Quantité requise.</div>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Motif <span class="text-red-500">*</span></label>
+          <textarea [(ngModel)]="commandeForm.motif" name="motif" class="w-full rounded-lg border border-gray-300 focus:ring-violet-500 focus:border-violet-500" rows="2" placeholder="Saisir motif" required></textarea>
+          <div *ngIf="commandeErrors.motif" class="text-xs text-red-500 mt-1">Motif requis.</div>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-2 mt-4">
+        <div class="text-sm text-gray-500 dark:text-gray-300">Articles ajoutés : <span class="font-bold text-violet-600 dark:text-violet-300">{{ articlesCommande.length }}</span></div>
+        <div class="flex gap-2 mt-2 md:mt-0">
+          <button type="button" (click)="closeCommandeModal()" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold shadow">Annuler</button>
+          <button type="button" (click)="ajouterArticle()" class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-400 hover:from-pink-500 hover:to-violet-600 text-white rounded-lg font-semibold shadow">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            Ajouter article
+          </button>
+          <button type="button" (click)="validerCommande()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-pink-400 hover:from-blue-500 hover:to-violet-600 text-white font-semibold shadow">Valider la commande</button>
+        </div>
+      </div>
+      <div *ngIf="message" class="mt-2 text-center text-sm font-semibold" [ngClass]="{'text-green-600': messageType==='success', 'text-red-600': messageType==='error'}">{{ message }}</div>
+    </form>
+    <div class="px-8 pb-6">
+      <table class="min-w-full text-sm mt-6">
+        <thead class="bg-gradient-to-r from-violet-700 to-blue-500 text-white">
+          <tr>
+            <th class="px-4 py-2 text-left font-bold">Article</th>
+            <th class="px-4 py-2 text-left font-bold">Unité</th>
+            <th class="px-4 py-2 text-left font-bold">Quantité commandée</th>
+            <th class="px-4 py-2 text-left font-bold">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let art of articlesCommande; let i = index" [ngClass]="{'bg-violet-50 dark:bg-violet-900/30': i%2===0, 'bg-white dark:bg-gray-800': i%2!==0}">
+            <td class="px-4 py-2">{{ art.article }}</td>
+            <td class="px-4 py-2">{{ art.unite }}</td>
+            <td class="px-4 py-2">{{ art.quantite }}</td>
+            <td class="px-4 py-2">
+              <button (click)="supprimerArticle(i)" class="text-red-600 hover:text-red-800 font-bold" title="Supprimer">&times;</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div> 

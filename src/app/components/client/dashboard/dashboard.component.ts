@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { SidebarClientComponent } from '../sidebar-client/sidebar-client.component';
 
 @Component({
   selector: 'app-dashboard-client',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SidebarClientComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, SidebarClientComponent, FormsModule],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardClientComponent implements OnInit {
@@ -19,6 +20,17 @@ export class DashboardClientComponent implements OnInit {
   // Données
   dernieresCommandes: any[] = [];
   dernieresExpressions: any[] = [];
+
+  showCommandeModal = false;
+  commandeForm = { compte: '', categorie: '', article: '', unite: '', quantite: '', motif: '' };
+  commandeErrors = { compte: false, categorie: false, article: false, unite: false, quantite: false, motif: false };
+  articlesCommande: any[] = [];
+  comptes = ['DSP', 'DGBF', 'SAF', 'SCG', 'SP'];
+  categories = ['Mobilier', 'Informatique', 'Papeterie', 'Véhicule', 'Autre'];
+
+  // Feedback pour le modal
+  message: string | null = null;
+  messageType: 'success' | 'error' | null = null;
 
   ngOnInit() {
     this.chargerDonnees();
@@ -52,8 +64,7 @@ export class DashboardClientComponent implements OnInit {
   }
 
   nouvelleCommande() {
-    // Navigation vers la page de création de commande
-    // TODO: Implémenter la navigation
+    this.ouvrirCommandeModal();
   }
 
   nouvelleExpressionBesoin() {
@@ -69,5 +80,84 @@ export class DashboardClientComponent implements OnInit {
   voirDetailExpression(expression: any) {
     // Navigation vers la page de détail de l'expression de besoin
     // TODO: Implémenter la navigation
+  }
+
+  ouvrirCommandeModal() {
+    this.showCommandeModal = true;
+    this.resetCommandeForm();
+  }
+  closeCommandeModal() {
+    this.showCommandeModal = false;
+    this.resetCommandeForm();
+  }
+  resetCommandeForm() {
+    this.commandeForm = { compte: '', categorie: '', article: '', unite: '', quantite: '', motif: '' };
+    this.commandeErrors = { compte: false, categorie: false, article: false, unite: false, quantite: false, motif: false };
+  }
+  ajouterArticle() {
+    // Validation
+    let valid = true;
+    this.commandeErrors = { compte: false, categorie: false, article: false, unite: false, quantite: false, motif: false };
+    const quantiteNum = parseInt(this.commandeForm.quantite as any, 10);
+    if (!this.commandeForm.compte) { this.commandeErrors.compte = true; valid = false; }
+    if (!this.commandeForm.categorie) { this.commandeErrors.categorie = true; valid = false; }
+    if (!this.commandeForm.article) { this.commandeErrors.article = true; valid = false; }
+    if (!this.commandeForm.unite) { this.commandeErrors.unite = true; valid = false; }
+    if (!quantiteNum || quantiteNum <= 0) { this.commandeErrors.quantite = true; valid = false; }
+    if (!this.commandeForm.motif) { this.commandeErrors.motif = true; valid = false; }
+    if (!valid) return;
+    this.articlesCommande.push({
+      article: this.commandeForm.article,
+      unite: this.commandeForm.unite,
+      quantite: quantiteNum
+    });
+    this.commandeForm.article = '';
+    this.commandeForm.unite = '';
+    this.commandeForm.quantite = '';
+    this.commandeForm.motif = '';
+  }
+  supprimerArticle(index: number) {
+    this.articlesCommande.splice(index, 1);
+  }
+
+  validerCommande() {
+    // Validation : il faut au moins un article
+    if (this.articlesCommande.length === 0) {
+      this.message = "Ajoutez au moins un article à la commande.";
+      this.messageType = 'error';
+      this.clearMessageAfterDelay();
+      return;
+    }
+    // Construction de la commande
+    const clientConnecte = JSON.parse(localStorage.getItem('user_connecte') || '{}');
+    const commandes = JSON.parse(localStorage.getItem('commandes') || '[]');
+    const nouvelleCommande = {
+      id: Date.now(),
+      numero: 'CMD-' + Math.floor(1000 + Math.random() * 9000),
+      client_id: clientConnecte.id,
+      date: new Date().toISOString(),
+      statut: 'ENVOYEE',
+      articles: [...this.articlesCommande],
+      nombreArticles: this.articlesCommande.length,
+      motif: this.commandeForm.motif
+    };
+    commandes.push(nouvelleCommande);
+    localStorage.setItem('commandes', JSON.stringify(commandes));
+    this.message = "Commande envoyée avec succès !";
+    this.messageType = 'success';
+    this.chargerDonnees();
+    // Reset après succès
+    setTimeout(() => {
+      this.closeCommandeModal();
+      this.message = null;
+      this.messageType = null;
+    }, 1500);
+  }
+
+  clearMessageAfterDelay() {
+    setTimeout(() => {
+      this.message = null;
+      this.messageType = null;
+    }, 2500);
   }
 } 

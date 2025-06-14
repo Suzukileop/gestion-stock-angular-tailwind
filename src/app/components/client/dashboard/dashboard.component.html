@@ -74,27 +74,63 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let cmd of dernieresCommandes" class="border-b border-gray-200 dark:border-gray-700">
-                <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ cmd.numero }}</td>
-                <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ cmd.date | date:'shortDate' }}</td>
-                <td class="px-4 py-3">
-                  <span class="px-3 py-1 rounded-full text-xs font-semibold"
-                    [ngClass]="{
-                      'bg-yellow-100 text-yellow-700': cmd.statut === 'ENVOYEE',
-                      'bg-green-100 text-green-700': cmd.statut === 'VALIDEE',
-                      'bg-red-100 text-red-700': cmd.statut === 'REJETEE',
-                      'bg-blue-100 text-blue-700': cmd.statut === 'LIVREE'
-                    }">
-                    {{ cmd.statut }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ cmd.nombreArticles }} articles</td>
-                <td class="px-4 py-3">
-                  <button (click)="voirDetailCommande(cmd)" class="text-violet-600 hover:text-violet-800 dark:text-violet-400 dark:hover:text-violet-200">
-                    Voir détails
-                  </button>
-                </td>
-              </tr>
+              <ng-container *ngFor="let cmd of dernieresCommandes">
+                <tr class="border-b border-gray-200 dark:border-gray-700">
+                  <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ cmd.numero }}</td>
+                  <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ cmd.date | date:'shortDate' }}</td>
+                  <td class="px-4 py-3">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                      [ngClass]="{
+                        'bg-yellow-100 text-yellow-700': cmd.statut === 'ENVOYEE',
+                        'bg-green-100 text-green-700': cmd.statut === 'VALIDEE',
+                        'bg-red-100 text-red-700': cmd.statut === 'REJETEE',
+                        'bg-blue-100 text-blue-700': cmd.statut === 'LIVREE'
+                      }">
+                      {{ cmd.statut }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ cmd.nombreArticles }} articles</td>
+                  <td class="px-4 py-3">
+                    <button (click)="toggleDetailCommande(cmd)" class="p-2 rounded-full hover:bg-violet-100 dark:hover:bg-violet-800 focus:outline-none focus:ring-2 focus:ring-violet-400 transition" [attr.aria-label]="cmd.showDetail ? 'Fermer le détail' : 'Voir le détail'">
+                      <svg *ngIf="!cmd.showDetail" class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5c-7 0-9 7.5-9 7.5s2 7.5 9 7.5 9-7.5 9-7.5-2-7.5-9-7.5zm0 10a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg>
+                      <svg *ngIf="cmd.showDetail" class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="cmd.showDetail">
+                  <td colspan="5" class="px-6 py-4">
+                    <div class="bg-white dark:bg-violet-950/80 border border-violet-200 dark:border-violet-800 rounded-xl shadow-lg p-6 flex flex-col gap-3">
+                      <div class="flex flex-wrap gap-6 mb-2">
+                        <div class="min-w-[180px]"><span class="font-semibold text-violet-700 dark:text-violet-200">Motif :</span><br><span class="text-gray-700 dark:text-gray-200">{{ cmd.motif || '—' }}</span></div>
+                        <div class="min-w-[180px]"><span class="font-semibold text-violet-700 dark:text-violet-200">Compte :</span><br><span class="text-gray-700 dark:text-gray-200">{{ cmd.compte || '—' }}</span></div>
+                        <div class="min-w-[180px]"><span class="font-semibold text-violet-700 dark:text-violet-200">Catégorie :</span><br><span class="text-gray-700 dark:text-gray-200">{{ cmd.categorie || '—' }}</span></div>
+                      </div>
+                      <div *ngIf="cmd.articles && cmd.articles.length > 0">
+                        <span class="font-semibold text-violet-700 dark:text-violet-200">Articles :</span>
+                        <div class="overflow-x-auto mt-2">
+                          <table class="min-w-full text-xs border rounded-lg">
+                            <thead class="bg-violet-50 dark:bg-violet-900/30">
+                              <tr>
+                                <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Désignation</th>
+                                <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Unité</th>
+                                <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Quantité</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let art of cmd.articles">
+                                <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.article }}</td>
+                                <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.unite }}</td>
+                                <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.quantite }}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <div *ngIf="!cmd.articles || cmd.articles.length === 0" class="text-gray-400 dark:text-gray-500">Aucun article pour cette commande.</div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
             </tbody>
           </table>
         </div>
@@ -236,6 +272,70 @@
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Détail Commande (style avancé violet/bleu/pink) -->
+<div *ngIf="selectedCommande" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white/90 dark:bg-gray-900/90 rounded-3xl shadow-2xl max-w-xl w-full relative animate-fade-in border border-violet-200 dark:border-violet-800">
+    <div class="rounded-t-3xl px-8 py-5 bg-gradient-to-r from-violet-600 to-blue-400 flex items-center justify-between shadow-lg">
+      <h2 class="text-lg font-extrabold text-white tracking-wide">Détail de la commande N° <span class="font-mono">{{ selectedCommande.numero }}</span></h2>
+      <button (click)="closeDetailModal()" class="text-white hover:text-pink-200 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="px-8 py-6">
+      <div class="mb-2">
+        <span class="font-semibold text-violet-700 dark:text-violet-200">Date :</span> <span>{{ selectedCommande.date | date:'short' }}</span>
+      </div>
+      <div class="mb-2">
+        <span class="font-semibold text-violet-700 dark:text-violet-200">Statut :</span>
+        <span class="px-3 py-1 rounded-full text-xs font-semibold"
+          [ngClass]="{
+            'bg-yellow-100 text-yellow-700': selectedCommande.statut === 'ENVOYEE',
+            'bg-green-100 text-green-700': selectedCommande.statut === 'VALIDEE',
+            'bg-red-100 text-red-700': selectedCommande.statut === 'REJETEE',
+            'bg-blue-100 text-blue-700': selectedCommande.statut === 'LIVREE'
+          }">
+          {{ selectedCommande.statut }}
+        </span>
+      </div>
+      <div class="mb-2">
+        <span class="font-semibold text-violet-700 dark:text-violet-200">Motif :</span> <span>{{ selectedCommande.motif }}</span>
+      </div>
+      <div class="mb-2">
+        <span class="font-semibold text-violet-700 dark:text-violet-200">Compte :</span> <span>{{ selectedCommande.compte }}</span>
+      </div>
+      <div class="mb-2">
+        <span class="font-semibold text-violet-700 dark:text-violet-200">Catégorie :</span> <span>{{ selectedCommande.categorie }}</span>
+      </div>
+      <div class="mt-4">
+        <span class="font-semibold text-violet-700 dark:text-violet-200">Articles :</span>
+        <div *ngIf="selectedCommande.articles && selectedCommande.articles.length > 0; else noArticlesModal">
+          <div class="overflow-x-auto mt-2">
+            <table class="min-w-full text-xs border rounded-lg">
+              <thead class="bg-violet-50 dark:bg-violet-900/30">
+                <tr>
+                  <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Désignation</th>
+                  <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Unité</th>
+                  <th class="px-3 py-2 text-left font-bold text-violet-700 dark:text-violet-200">Quantité</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let art of selectedCommande.articles">
+                  <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.article }}</td>
+                  <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.unite }}</td>
+                  <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ art.quantite }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <ng-template #noArticlesModal>
+          <div class="text-gray-400 dark:text-gray-500">Aucun article pour cette commande.</div>
+        </ng-template>
+      </div>
     </div>
   </div>
 </div> 

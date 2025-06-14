@@ -25,12 +25,14 @@ export class DashboardClientComponent implements OnInit {
   commandeForm = { compte: '', categorie: '', article: '', unite: '', quantite: '', motif: '' };
   commandeErrors = { compte: false, categorie: false, article: false, unite: false, quantite: false, motif: false };
   articlesCommande: any[] = [];
-  comptes = ['DSP', 'DGBF', 'SAF', 'SCG', 'SP'];
+  comptes = ['DSP', 'DGBF'];
   categories = ['Mobilier', 'Informatique', 'Papeterie', 'Véhicule', 'Autre'];
 
   // Feedback pour le modal
   message: string | null = null;
   messageType: 'success' | 'error' | null = null;
+
+  selectedCommande: any = null;
 
   ngOnInit() {
     this.chargerDonnees();
@@ -45,6 +47,9 @@ export class DashboardClientComponent implements OnInit {
     const clientConnecte = JSON.parse(localStorage.getItem('user_connecte') || '{}');
     const commandesClient = commandes.filter((cmd: any) => cmd.client_id === clientConnecte.id);
     const expressionsClient = expressions.filter((exp: any) => exp.client_id === clientConnecte.id);
+
+    // Initialiser showDetail à false pour chaque commande
+    commandesClient.forEach((cmd: any) => cmd.showDetail = false);
 
     // Calculer les stats
     this.commandesEnCours = commandesClient.filter((cmd: any) => 
@@ -131,15 +136,20 @@ export class DashboardClientComponent implements OnInit {
     // Construction de la commande
     const clientConnecte = JSON.parse(localStorage.getItem('user_connecte') || '{}');
     const commandes = JSON.parse(localStorage.getItem('commandes') || '[]');
+    // Numéro incrémental
+    let dernierNumero = parseInt(localStorage.getItem('dernier_numero_commande') || '0', 10);
+    dernierNumero++;
+    localStorage.setItem('dernier_numero_commande', dernierNumero.toString());
     const nouvelleCommande = {
       id: Date.now(),
-      numero: 'CMD-' + Math.floor(1000 + Math.random() * 9000),
+      numero: dernierNumero.toString(),
       client_id: clientConnecte.id,
       date: new Date().toISOString(),
       statut: 'ENVOYEE',
       articles: [...this.articlesCommande],
       nombreArticles: this.articlesCommande.length,
-      motif: this.commandeForm.motif
+      motif: this.commandeForm.motif,
+      showDetail: false
     };
     commandes.push(nouvelleCommande);
     localStorage.setItem('commandes', JSON.stringify(commandes));
@@ -159,5 +169,19 @@ export class DashboardClientComponent implements OnInit {
       this.message = null;
       this.messageType = null;
     }, 2500);
+  }
+
+  // Pour le dropdown détail
+  toggleDetailCommande(cmd: any) {
+    // Fermer tous les autres détails
+    this.dernieresCommandes.forEach(c => { if (c !== cmd) c.showDetail = false; });
+    cmd.showDetail = !cmd.showDetail;
+  }
+
+  openDetailModal(cmd: any) {
+    this.selectedCommande = cmd;
+  }
+  closeDetailModal() {
+    this.selectedCommande = null;
   }
 } 

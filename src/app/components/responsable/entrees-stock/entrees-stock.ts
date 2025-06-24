@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { SidebarResponsableComponent } from '../sidebar-responsable.component';
 import { EntreeStockService } from '../../../services/entree-stock.service';
+import { ARTICLES_PAR_CATEGORIE, UNITE_PAR_ARTICLE } from '../../../data/articles-data';
 
 @Component({
   selector: 'entrees-stock',
@@ -34,6 +35,12 @@ export class EntreesStockComponent implements OnInit {
   editArticleIndex: number | null = null;
 
   localArticleList: any[] = [];
+
+  articleOptions: string[] = [];
+  selectedArticle: string = '';
+  selectedUnite: string = '';
+
+  message: string = '';
 
   constructor(private entreeStockService: EntreeStockService) {}
 
@@ -192,13 +199,21 @@ export class EntreesStockComponent implements OnInit {
     }
   }
 
+  getCategorieKeyFromCode(code: string): string | undefined {
+    return Object.keys(ARTICLES_PAR_CATEGORIE).find(key => key.startsWith(code));
+  }
+
   openArticleModal(piece: any, index: number | null = null) {
     this.showArticleModal = true;
     this.currentPiece = piece;
     this.editArticleIndex = null;
     this.articleFormData = { designation: '', unite: '', prix_unitaire: '', quantite: '', date_peremption: '' };
-    // On part d'une liste vide, ou on clone les articles existants si besoin (optionnel)
     this.localArticleList = [];
+    // Correction : mapping code -> clé complète
+    const catKey = this.getCategorieKeyFromCode(piece.categorie_article);
+    this.articleOptions = catKey ? ARTICLES_PAR_CATEGORIE[catKey] : [];
+    this.selectedArticle = '';
+    this.selectedUnite = '';
   }
 
   closeArticleModal() {
@@ -209,6 +224,12 @@ export class EntreesStockComponent implements OnInit {
     this.localArticleList = [];
   }
 
+  onArticleChange() {
+    this.selectedUnite = UNITE_PAR_ARTICLE[this.selectedArticle] || '';
+    this.articleFormData.designation = this.selectedArticle;
+    this.articleFormData.unite = this.selectedUnite;
+  }
+
   addArticleToLocalList() {
     if (this.editArticleIndex === null) {
       this.localArticleList.push({ ...this.articleFormData });
@@ -216,6 +237,8 @@ export class EntreesStockComponent implements OnInit {
       this.localArticleList[this.editArticleIndex] = { ...this.articleFormData };
     }
     this.articleFormData = { designation: '', unite: '', prix_unitaire: '', quantite: '', date_peremption: '' };
+    this.selectedArticle = '';
+    this.selectedUnite = '';
     this.editArticleIndex = null;
   }
 

@@ -17,14 +17,42 @@
     </div>
     <div class="mt-6 mb-2">
       <h3 class="font-semibold text-violet-700 dark:text-violet-300 mb-2">Articles de l'entrée</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-        <input type="text" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" placeholder="Désignation" [(ngModel)]="ligne.designation" name="designation" />
-        <input type="number" min="1" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" placeholder="Quantité" [(ngModel)]="ligne.quantite" name="quantite" />
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+        <!-- Catégorie -->
+        <select class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" 
+                [ngClass]="{'border-red-500': showError && !selectedCategorie}" 
+                [(ngModel)]="selectedCategorie" name="categorie" (change)="onCategorieChange()" required>
+          <option value="">Catégorie...</option>
+          <option *ngFor="let cat of categories" [value]="cat">{{cat}}</option>
+        </select>
+        <div *ngIf="showError && !selectedCategorie" class="text-xs text-red-500">Catégorie requise.</div>
+        <!-- Article (dépend de la catégorie) -->
+        <select class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" 
+                [ngClass]="{'border-red-500': showError && !selectedArticle}" 
+                [(ngModel)]="selectedArticle" name="article" (change)="onArticleChange()" [disabled]="!selectedCategorie" required>
+          <option value="">Article...</option>
+          <option *ngFor="let art of articlesParCategorie[selectedCategorie]" [value]="art">{{art}}</option>
+        </select>
+        <div *ngIf="showError && !selectedArticle" class="text-xs text-red-500">Article requis.</div>
+        <!-- Unité (readonly) -->
+        <input type="text" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" [value]="uniteParArticle[selectedArticle] || ''" name="unite" placeholder="Unité" readonly />
+        <!-- Quantité -->
+        <input type="number" min="1" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" 
+               [ngClass]="{'border-red-500': showError && (!ligne.quantite || ligne.quantite <= 0)}" 
+               placeholder="Quantité" [(ngModel)]="ligne.quantite" name="quantite" />
+        <div *ngIf="showError && (!ligne.quantite || ligne.quantite <= 0)" class="text-xs text-red-500">Quantité requise.</div>
+        <!-- Prix unitaire -->
         <input type="number" min="0" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" placeholder="Prix unitaire" [(ngModel)]="ligne.prix_unitaire" name="prix_unitaire" />
+        <!-- Magasin -->
         <input type="text" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" placeholder="Magasin" [(ngModel)]="ligne.magasin" name="magasin" />
+        <!-- Étagère -->
         <input type="text" class="rounded-lg border-gray-300 dark:bg-gray-800 dark:text-white" placeholder="Étagère" [(ngModel)]="ligne.etagere" name="etagere" />
       </div>
-      <button type="button" (click)="addLigne()" class="mt-2 px-4 py-2 bg-violet-600 text-white rounded-lg shadow hover:bg-violet-700 transition">+ Ajouter l'article</button>
+      <button type="button" (click)="addLigne()"
+        [disabled]="!selectedCategorie || !selectedArticle || !ligne.quantite || ligne.quantite <= 0"
+        class="mt-2 px-4 py-2 bg-violet-600 text-white rounded-lg shadow hover:bg-violet-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+        + Ajouter l'article
+      </button>
     </div>
     <div *ngIf="lignes.length > 0" class="mb-4">
       <div *ngFor="let l of lignes; let i = index" class="flex items-center gap-2 bg-violet-50 dark:bg-violet-900/30 rounded-lg px-3 py-2 mb-2">

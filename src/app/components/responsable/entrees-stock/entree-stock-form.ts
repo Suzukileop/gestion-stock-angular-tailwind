@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { CATEGORIES, ARTICLES_PAR_CATEGORIE, UNITE_PAR_ARTICLE } from '../../../data/articles-data';
 
 @Component({
   selector: 'entree-stock-form',
@@ -17,14 +18,52 @@ export class EntreeStockFormComponent {
     statut: 'BROUILLON',
     lignes: []
   };
-  ligne: any = { designation: '', quantite: 1, prix_unitaire: 0, magasin: '', etagere: '' };
+  categories = CATEGORIES;
+  articlesParCategorie = ARTICLES_PAR_CATEGORIE;
+  uniteParArticle = UNITE_PAR_ARTICLE;
+
+  selectedCategorie: string = '';
+  selectedArticle: string = '';
+  selectedUnite: string = '';
+
+  ligne: any = { categorie: '', article: '', unite: '', quantite: 1, prix_unitaire: 0, magasin: '', etagere: '' };
   lignes: any[] = [];
+
+  showError = false;
 
   constructor(private router: Router) {}
 
+  onCategorieChange() {
+    this.selectedArticle = '';
+    this.selectedUnite = '';
+    this.ligne.article = '';
+    this.ligne.unite = '';
+  }
+
+  onArticleChange() {
+    this.selectedUnite = this.uniteParArticle[this.selectedArticle] || '';
+    this.ligne.unite = this.selectedUnite;
+  }
+
   addLigne() {
-    this.lignes.push({ ...this.ligne });
-    this.ligne = { designation: '', quantite: 1, prix_unitaire: 0, magasin: '', etagere: '' };
+    if (!this.selectedCategorie || !this.selectedArticle || !this.ligne.quantite || this.ligne.quantite <= 0) {
+      this.showError = true;
+      return;
+    }
+    this.showError = false;
+    this.lignes.push({
+      categorie: this.selectedCategorie,
+      article: this.selectedArticle,
+      unite: this.selectedUnite,
+      quantite: this.ligne.quantite,
+      prix_unitaire: this.ligne.prix_unitaire,
+      magasin: this.ligne.magasin,
+      etagere: this.ligne.etagere
+    });
+    this.selectedCategorie = '';
+    this.selectedArticle = '';
+    this.selectedUnite = '';
+    this.ligne = { categorie: '', article: '', unite: '', quantite: 1, prix_unitaire: 0, magasin: '', etagere: '' };
   }
 
   removeLigne(i: number) {
